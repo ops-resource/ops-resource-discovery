@@ -69,7 +69,7 @@
             * Copyrights
             * API documentation
         -->
-        <ProductName Condition=" '$(ProductName)' == '' ">Ops.Resource.Storage</ProductName>
+        <ProductName Condition=" '$(ProductName)' == '' ">Ops.Resource.Discovery</ProductName>
 
         <!--
             The name of the product that can be used as part of a file path. This is for instance used for:
@@ -77,14 +77,14 @@
             * SourceMonitor
             * Deployment directory naming
         -->
-        <ProductNameInFilePath Condition=" '$(ProductNameInFilePath)' == '' ">OpsResourceStorage</ProductNameInFilePath>
+        <ProductNameInFilePath Condition=" '$(ProductNameInFilePath)' == '' ">OpsResourceDiscovery</ProductNameInFilePath>
 
         <!--
             The description of the product. This is for instance used for:
             * Installer information
         -->
         <ProductDescription>
-            The NuGet packages that contain the core initialization scripts for resources.
+            The scripts and tools to create a Consul server in a windows server / docker container.
         </ProductDescription>
 
         <!--
@@ -92,7 +92,7 @@
             * Finding the correct assemblies and namespaces for unit testing and coverage reporting
             * Generated code files that contain namespaces
         -->
-        <ProductNamespace Condition=" '$(ProductNamespace)' == '' ">Ops.Resource.Storage</ProductNamespace>
+        <ProductNamespace Condition=" '$(ProductNamespace)' == '' ">Ops.Resource.Discovery</ProductNamespace>
 
         <!--
             The first year the product was available / created. This is for instance used for:
@@ -117,7 +117,7 @@
             The URL of the company website. This is for instance used for:
             * nuspec files
         -->
-        <CompanyUrl Condition=" '$(CompanyUrl)' == '' ">https://github.com/$(GitHubUserName)/ops-resource-storage</CompanyUrl>
+        <CompanyUrl Condition=" '$(CompanyUrl)' == '' ">https://github.com/$(GitHubUserName)/ops-resource-discovery</CompanyUrl>
 
         <!--
             The email address that is specified in the documentation. This is for instance used for:
@@ -554,7 +554,7 @@
             </Properties>
         </BuildStepsToExecute>
         -->
-        <BuildStepsToExecute Include="$(DirWorkspace)\build.prepare.storage.msbuild">
+        <BuildStepsToExecute Include="$(DirWorkspace)\build.prepare.discovery.msbuild">
             <Properties>
             </Properties>
         </BuildStepsToExecute>
@@ -1222,7 +1222,7 @@
         All file paths allow build templates, e.g. $(DirBuildDeploy)\myarchive-${VersionSemantic}.zip.
     -->
     <ItemGroup>
-        <ArchivePackageSpecs Include="$(DirTemplate)\ops.resource.storage.zipspec" />
+        <ArchivePackageSpecs Include="$(DirTemplate)\ops.resource.discovery.zipspec" />
     </ItemGroup>
 
 
