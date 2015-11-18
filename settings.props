@@ -270,15 +270,28 @@
 
         <!-- The directory that will contain all the temporary files needed during the build process -->
         <DirBuildTemp Condition=" '$(DirBuildTemp)' == '' ">$(DirBuild)\temp</DirBuildTemp>
+        <DirBuildTempDiscovery>$(DirBuildTemp)\discovery</DirBuildTempDiscovery>
+        <DirBuildTempDiscoveryConfiguration>$(DirBuildTempDiscovery)\configuration</DirBuildTempDiscoveryConfiguration>
+        <DirBuildTempDiscoveryCookbooks>$(DirBuildTempDiscoveryConfiguration)\cookbooks</DirBuildTempDiscoveryCookbooks>
+        <DirBuildTempDiscoveryCookbooksServer>$(DirBuildTempDiscoveryCookbooks)\discovery_server</DirBuildTempDiscoveryCookbooksServer>
+        <DirBuildTempDiscoveryVerification>$(DirBuildTempDiscovery)\verification</DirBuildTempDiscoveryVerification>
+        <DirBuildTempDiscoveryTests>$(DirBuildTempDiscoveryVerification)\tests</DirBuildTempDiscoveryTests>
 
         <!-- The directory that will contain all the test files generated during the test process -->
         <DirBuildTest Condition=" '$(DirBuildTest)' == '' ">$(DirBuild)\tests</DirBuildTest>
+        
+        <!-- The directory that contains all the Chef cookbooks -->
+        <DirChefCookbooks Condition=" '$(DirChefCookbooks)' == '' ">$(DirWorkspace)\cookbooks</DirChefCookbooks>
+        <DirChefCookbooksDiscoveryServer>$(DirChefCookbooks)\discovery_server</DirChefCookbooksDiscoveryServer>
 
         <!-- The directory that contains all the NuGet packages for the project -->
         <DirPackages Condition=" '$(DirPackages)' == '' ">$(DirWorkspace)\packages</DirPackages>
 
         <!-- The directory that contains the source files for the project -->
         <DirSrc Condition=" '$(DirSrc)' == '' ">$(DirWorkspace)\src</DirSrc>
+        
+        <!-- The directory that contains all the script files -->
+        <DirScripts Condition=" '$(DirScripts)' == '' ">$(DirWorkspace)\scripts</DirScripts>
 
         <!-- The directory that contains the template files for the project -->
         <DirTemplates Condition=" '$(DirTemplates)' == '' ">$(DirWorkspace)\templates</DirTemplates>
@@ -1639,6 +1652,11 @@
             The full path to the OpenCover command line executable. If not defined the packages directory is searched.
         -->
         <ToolsExternalOpenCoverPath Condition=" '$(ToolsExternalOpenCoverPath)' == '' ">UNDEFINED</ToolsExternalOpenCoverPath>
+        
+        <!--
+            The full path to the Powershell executable.
+        -->
+        <ToolsExternalPowershellPath Condition=" '$(ToolsExternalPowershellPath)' == '' ">C:\Windows\System32\WindowsPowerShell\v1.0</ToolsExternalPowershellPath>
 
         <!--
             The full path to the ReportGenerator command line executable. If not defined the packages directory is searched.
