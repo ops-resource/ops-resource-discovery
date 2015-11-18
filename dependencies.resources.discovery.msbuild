@@ -7,10 +7,6 @@
             <CookbookName>discovery_server</CookbookName>
             <Destination>${DestinationConfigurationCookbooks}\${CookbookName}\files\windows\consul.exe</Destination>
         </ExternalFiles>
-        <ExternalFiles Include="$(DirExternalInstallers)\devinfra\portal\**\*.*">
-            <CookbookName>discovery_server</CookbookName>
-            <Destination>${DestinationConfigurationCookbooks}\${CookbookName}\files\default\portal\${RecursiveDir}${Filename}${Extension}</Destination>
-        </ExternalFiles>
         <ExternalFiles Include="$(DirExternalInstallers)\consul\ui\**\*.*">
             <CookbookName>discovery_server</CookbookName>
             <Destination>${DestinationConfigurationCookbooks}\${CookbookName}\files\default\consului\${RecursiveDir}${Filename}${Extension}</Destination>
