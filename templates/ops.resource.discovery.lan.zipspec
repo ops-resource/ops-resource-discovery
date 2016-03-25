@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<archive>
+    <name>Ops.Resource.Discovery.Lan-${VersionSemantic}</name>
+    <files>
+        <file src="${DirWorkspace}\README.md" target="" />
+        <file src="${DirWorkspace}\LICENSE" target="" />
+
+        <file src="${DirBuildTempDiscoveryShared}\**\*.*"
+              target="" />
+        <file src="${DirBuildTempDiscoveryLan}\**\*.*"
+              target="" />
+    </files>
+</archive>

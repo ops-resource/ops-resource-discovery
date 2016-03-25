@@ -8,6 +8,13 @@
 
         <!-- The full path to the settings file that contains all the settings for the build process -->
         <BuildPropertyFile Condition=" '$(BuildPropertyFile)' == '' ">UNDEFINED</BuildPropertyFile>
+
+        <!--
+            Define the DirWorkspace before importing the BuildPropertyFile so that it is defined and can be used by
+            the properties in the BuildPropertyFile. Note that we can't define it in the BuildPropertyFile because that
+            is imported which means there is no way to get the path of the file.
+        -->
+        <DirWorkspace Condition=" '$(DirWorkspace)' == '' ">$([System.IO.Path]::GetDirectoryName('$(BuildPropertyFile)'))</DirWorkspace>
     </PropertyGroup>
 
     <Import Project="$(BuildPropertyFile)"
@@ -18,24 +25,24 @@
 
         <!-- Files -->
         <FileDiscoveryResourcesDependencies Condition=" '$(FileDiscoveryResourcesDependencies)' == '' ">$(DirWorkspace)\dependencies.resources.discovery.msbuild</FileDiscoveryResourcesDependencies>
-        <FileMonitoringMetadataTemplate>$(DirChefCookbooksDiscoveryServer)\metadata.rb</FileMonitoringMetadataTemplate>
-        <FileMonitoringMetadataGenerated>$(DirBuildTempDiscoveryCookbooksServer)\metadata.rb</FileMonitoringMetadataGenerated>
+        <FileDiscoveryMetadataTemplate>$(DirChefCookbooksDiscoveryServer)\metadata.rb</FileDiscoveryMetadataTemplate>
+        <FileDiscoveryMetadataGenerated>$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\metadata.rb</FileDiscoveryMetadataGenerated>
     </PropertyGroup>
 
-    <Import Project="$(DirMsBuildShared)\shared.templatetokens.msbuild"
-            Condition="Exists('$(DirMsBuildShared)\shared.templatetokens.msbuild') AND '$(ExistsSharedTemplateTokens)' != 'true' " />
+    <Import Project="$(DirNBuildKitMsBuild)\shared.templatetokens.msbuild"
+            Condition="Exists('$(DirNBuildKitMsBuild)\shared.templatetokens.msbuild') AND '$(ExistsSharedTemplateTokens)' != 'true' " />
 
-    <Import Project="$(DirMsBuildExtensions)\GetSemanticVersionFromFile.msbuild"
-            Condition="Exists('$(DirMsBuildExtensions)\GetSemanticVersionFromFile.msbuild') AND '$(ExistsExtensionsGetSemanticVersionFromFile)' != 'true' " />
-    <Import Project="$(DirMsBuildExtensions)\SearchPackagesDirectoryForToolDirectory.msbuild"
-            Condition="Exists('$(DirMsBuildExtensions)\SearchPackagesDirectoryForToolDirectory.msbuild') AND '$(ExistsExtensionsSearchPackagesDirectoryForToolDirectory)' != 'true' " />
-    <Import Project="$(DirMsBuildExtensions)\TemplateFile.msbuild"
-            Condition="Exists('$(DirMsBuildExtensions)\TemplateFile.msbuild') AND '$(ExistsExtensionsTemplateFile)' != 'true' " />
+    <Import Project="$(DirNBuildKitMsBuildExtensions)\GetSemanticVersionFromFile.msbuild"
+            Condition="Exists('$(DirNBuildKitMsBuildExtensions)\GetSemanticVersionFromFile.msbuild') AND '$(ExistsExtensionsGetSemanticVersionFromFile)' != 'true' " />
+    <Import Project="$(DirNBuildKitMsBuildExtensions)\SearchPackagesDirectoryForToolDirectory.msbuild"
+            Condition="Exists('$(DirNBuildKitMsBuildExtensions)\SearchPackagesDirectoryForToolDirectory.msbuild') AND '$(ExistsExtensionsSearchPackagesDirectoryForToolDirectory)' != 'true' " />
+    <Import Project="$(DirNBuildKitMsBuildExtensions)\TemplateFile.msbuild"
+            Condition="Exists('$(DirNBuildKitMsBuildExtensions)\TemplateFile.msbuild') AND '$(ExistsExtensionsTemplateFile)' != 'true' " />
 
     <Target Name="Build_Prepare_Discovery_Run" DependsOnTargets="_Build_Prepare_Discovery_DisplayInfo">
         <CallTarget Targets="_Build_Prepare_Discovery_GetVersion" />
-        <CallTarget Targets="_Build_Prepare_Discovery_GetScriptsDirectory" />
-        <CallTarget Targets="_Build_Prepare_Discovery_GatherCoreFiles" />
+        <CallTarget Targets="_Build_Prepare_Discovery_GatherCoreFiles_ForHyperVInstall" />
+        <CallTarget Targets="_Build_Prepare_Discovery_GatherCoreFiles_ForLanInstall" />
         <CallTarget Targets="_Build_Prepare_Discovery_GatherConfigurationFiles" />
         <CallTarget Targets="_Build_Prepare_Discovery_GatherVerificationFiles" />
     </Target>
@@ -59,37 +66,63 @@
         <Message Text="Version: $(VersionSemantic)" />
     </Target>
 
-    <Target Name="_Build_Prepare_Discovery_GetScriptsDirectory">
-        <SearchPackagesDirectoryForToolDirectory PackagesDir="$(DirPackages)"
-                                                 FileToLocate="distribute.core.msbuild"
-                                                 Condition=" '$(ShouldExecute)' == 'true' ">
-            <Output TaskParameter="Path" PropertyName="DirPackagesResourcesCore" />
-        </SearchPackagesDirectoryForToolDirectory>
-    </Target>
-
     <PropertyGroup>
         <DefaultDirectories>
-            DirMsBuildShared=$(DirMsBuildShared);
-            DirMsBuildExtensions=$(DirMsBuildExtensions);
-            DirOutput=$(DirBuildTempDiscovery);
+            DirNBuildKitMsBuild=$(DirNBuildKitMsBuild);
+            DirNBuildKitMsBuildExtensions=$(DirNBuildKitMsBuildExtensions);
             DirExternalInstallers=$(DirExternalInstallers)
         </DefaultDirectories>
         <DefaultFiles>
             FileNonCoreDependencies=$(FileDiscoveryResourcesDependencies)
         </DefaultFiles>
         <DefaultCookbooks>
-            CookbooksToInvoke=discovery_server
+            CookbooksToInvoke=ops_resource_discovery
         </DefaultCookbooks>
         <DefaultFlags>
             InstallConsul=false;
             InstallMeta=true
         </DefaultFlags>
     </PropertyGroup>
-    <Target Name="_Build_Prepare_Discovery_GatherCoreFiles">
+    <Target Name="_Build_Prepare_Discovery_GatherCoreFiles_ForHyperVInstall">
+        <SearchPackagesDirectoryForToolDirectory PackagesDir="$(DirPackages)"
+                                                 FileToLocate="Initialize-HyperVResource.ps1"
+                                                 Condition=" '$(ShouldExecute)' == 'true' ">
+            <Output TaskParameter="Path" PropertyName="DirPackagesResourcesCoreHypervTemplates" />
+        </SearchPackagesDirectoryForToolDirectory>
+        <CreateProperty Value="$([System.IO.Path]::GetDirectoryName('$([System.IO.Path]::GetDirectoryName('$(DirPackagesResourcesCoreHypervTemplates)'))'))">
+            <Output TaskParameter="Value" PropertyName="DirPackageResourcesCoreHyperv" />
+        </CreateProperty>
+
         <MSBuild
             BuildInParallel="False"
-            Projects="$(DirPackagesResourcesCore)\distribute.core.msbuild"
-            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFiles);$(DefaultCookbooks);$(DefaultFlags)"
+            Projects="$(DirPackageResourcesCoreHyperv)\distribute.core.msbuild"
+            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFiles);$(DefaultCookbooks);$(DefaultFlags);DirOutput=$(DirBuildTempDiscoveryHyperV)"
+            RebaseOutputs="False"
+            RemoveProperties=""
+            RunEachTargetSeparately="True"
+            SkipNonexistentProjects="False"
+            StopOnFirstFailure="True"
+            TargetAndPropertyListSeparators=""
+            Targets=""
+            ToolsVersion="$(MSBuildToolsVersion)"
+            UnloadProjectsOnCompletion="False"
+            UseResultsCache="True" />
+    </Target>
+
+    <Target Name="_Build_Prepare_Discovery_GatherCoreFiles_ForLanInstall">
+        <SearchPackagesDirectoryForToolDirectory PackagesDir="$(DirPackages)"
+                                                 FileToLocate="Initialize-LocalNetworkResource.ps1"
+                                                 Condition=" '$(ShouldExecute)' == 'true' ">
+            <Output TaskParameter="Path" PropertyName="DirPackagesResourcesCoreLanTemplates" />
+        </SearchPackagesDirectoryForToolDirectory>
+        <CreateProperty Value="$([System.IO.Path]::GetDirectoryName('$([System.IO.Path]::GetDirectoryName('$(DirPackagesResourcesCoreLanTemplates)'))'))">
+            <Output TaskParameter="Value" PropertyName="DirPackageResourcesCoreLan" />
+        </CreateProperty>
+
+        <MSBuild
+            BuildInParallel="False"
+            Projects="$(DirPackageResourcesCoreLan)\distribute.core.msbuild"
+            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFiles);$(DefaultCookbooks);$(DefaultFlags);DirOutput=$(DirBuildTempDiscoveryLan)"
             RebaseOutputs="False"
             RemoveProperties=""
             RunEachTargetSeparately="True"
@@ -110,38 +143,44 @@
                  Condition="!Exists('$(DirBuildTemp)')" />
         <MakeDir Directories="$(DirBuildTempDiscovery)"
                  Condition="!Exists('$(DirBuildTempDiscovery)')" />
-        <MakeDir Directories="$(DirBuildTempDiscoveryConfiguration)"
-                 Condition="!Exists('$(DirBuildTempDiscoveryConfiguration)')" />
-        <MakeDir Directories="$(DirBuildTempDiscoveryCookbooks)"
-                 Condition="!Exists('$(DirBuildTempDiscoveryCookbooks)')" />
-        <MakeDir Directories="$(DirBuildTempDiscoveryCookbooksServer)"
-                 Condition="!Exists('$(DirBuildTempDiscoveryCookbooksServer)')" />
-        <MakeDir Directories="$(DirBuildTempDiscoveryCookbooksServer)\files"
-                 Condition="!Exists('$(DirBuildTempDiscoveryCookbooksServer)\files')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirConfiguration)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirConfiguration)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooks)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooks)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\files"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\files')" />
 
-        <ItemGroup>
-            <ScriptFiles Include="$(DirScripts)\*.ps1" />
-        </ItemGroup>
-        <Copy SourceFiles="@(ScriptFiles)"
-              DestinationFiles="@(ScriptFiles->'$(DirBuildTempDiscovery)\%(RecursiveDir)%(Filename)%(Extension)')" />
+        <Copy SourceFiles="$(DirScripts)\New-DiscoveryHypervServer.ps1"
+              DestinationFolder="$(DirBuildTempDiscoveryHyperV)" />
+        <Copy SourceFiles="$(DirScripts)\New-DiscoveryLocalServer.ps1"
+              DestinationFolder="$(DirBuildTempDiscoveryLan)" />
 
         <ItemGroup>
             <CookBookFiles Include="$(DirChefCookbooks)\**\*.*"
-                           Exclude="$(FileMonitoringMetadataTemplate)" />
+                           Exclude="$(FileDiscoveryMetadataTemplate)" />
         </ItemGroup>
         <Copy SourceFiles="@(CookBookFiles)"
-              DestinationFiles="@(CookBookFiles->'$(DirBuildTempDiscoveryCookbooks)\%(RecursiveDir)%(Filename)%(Extension)')" />
+              DestinationFiles="@(CookBookFiles->'$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooks)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-        <TemplateFile Template="$(FileMonitoringMetadataTemplate)"
-                      OutputFileName="$(FileMonitoringMetadataGenerated)"
+        <TemplateFile Template="$(FileDiscoveryMetadataTemplate)"
+                      OutputFileName="$(FileDiscoveryMetadataGenerated)"
                       Tokens="@(TemplateTokens)"
                       Condition=" '$(ShouldExecute)' == 'true' "/>
 
+        <SearchPackagesDirectoryForToolDirectory PackagesDir="$(DirPackages)"
+                                                 FileToLocate="Consul.ps1"
+                                                 Condition=" '$(ShouldExecute)' == 'true' ">
+            <Output TaskParameter="Path" PropertyName="DirPackagesOpsToolsConsul" />
+        </SearchPackagesDirectoryForToolDirectory>
         <ItemGroup>
-            <HelperScripts Include="$(DirBuildTempDiscovery)/Consul.ps1" />
+            <HelperScripts Include="$(DirPackagesOpsToolsConsul)/Consul.ps1" />
         </ItemGroup>
         <Copy SourceFiles="@(HelperScripts)"
-              DestinationFiles="@(HelperScripts->'$(DirBuildTempDiscoveryCookbooksServer)\files\windows\%(Filename)%(Extension)')" />
+              DestinationFiles="@(HelperScripts->'$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\files\windows\%(Filename)%(Extension)')" />
     </Target>
 
     <Target Name="_Build_Prepare_Discovery_GatherVerificationFiles">
@@ -151,21 +190,17 @@
                  Condition="!Exists('$(DirBuildTemp)')" />
         <MakeDir Directories="$(DirBuildTempDiscovery)"
                  Condition="!Exists('$(DirBuildTempDiscovery)')" />
-        <MakeDir Directories="$(DirBuildTempDiscoveryVerification)"
-                 Condition="!Exists('$(DirBuildTempDiscoveryVerification)')" />
-        <MakeDir Directories="$(DirBuildTempDiscoveryTest)"
-                 Condition="!Exists('$(DirBuildTempDiscoveryTests)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirVerification)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirVerification)')" />
+        <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirVerificationTests)"
+                 Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirVerificationTests)')" />
 
         <ItemGroup>
             <VerificationTestFiles Include="$(DirTest)\**\*.*" />
         </ItemGroup>
         <Copy SourceFiles="@(VerificationTestFiles)"
-              DestinationFiles="@(VerificationTestFiles->'$(DirBuildTempDiscoveryTests)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-        <ItemGroup>
-            <VerificationNuGetFiles Include="$(DirBuildDeploy)\*.nupkg" />
-        </ItemGroup>
-        <Copy SourceFiles="@(VerificationNuGetFiles)"
-              DestinationFiles="@(VerificationNuGetFiles->'$(DirBuildTempDiscoveryVerification)\%(RecursiveDir)%(Filename)%(Extension)')" />
+              DestinationFiles="@(VerificationTestFiles->'$(DirBuildTempDiscoveryShared)\$(RelDirVerificationTests)\%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

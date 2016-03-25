@@ -271,25 +271,23 @@
         <!-- The directory that will contain all the temporary files needed during the build process -->
         <DirBuildTemp Condition=" '$(DirBuildTemp)' == '' ">$(DirBuild)\temp</DirBuildTemp>
         <DirBuildTempDiscovery>$(DirBuildTemp)\discovery</DirBuildTempDiscovery>
-        <DirBuildTempDiscoveryConfiguration>$(DirBuildTempDiscovery)\configuration</DirBuildTempDiscoveryConfiguration>
-        <DirBuildTempDiscoveryCookbooks>$(DirBuildTempDiscoveryConfiguration)\cookbooks</DirBuildTempDiscoveryCookbooks>
-        <DirBuildTempDiscoveryCookbooksServer>$(DirBuildTempDiscoveryCookbooks)\discovery_server</DirBuildTempDiscoveryCookbooksServer>
-        <DirBuildTempDiscoveryVerification>$(DirBuildTempDiscovery)\verification</DirBuildTempDiscoveryVerification>
-        <DirBuildTempDiscoveryTests>$(DirBuildTempDiscoveryVerification)\tests</DirBuildTempDiscoveryTests>
+        <DirBuildTempDiscoveryShared>$(DirBuildTempDiscovery)\shared</DirBuildTempDiscoveryShared>
+        <DirBuildTempDiscoveryHyperV>$(DirBuildTempDiscovery)\hyperv</DirBuildTempDiscoveryHyperV>
+        <DirBuildTempDiscoveryLan>$(DirBuildTempDiscovery)\lan</DirBuildTempDiscoveryLan>
 
         <!-- The directory that will contain all the test files generated during the test process -->
         <DirBuildTest Condition=" '$(DirBuildTest)' == '' ">$(DirBuild)\tests</DirBuildTest>
-        
+
         <!-- The directory that contains all the Chef cookbooks -->
         <DirChefCookbooks Condition=" '$(DirChefCookbooks)' == '' ">$(DirWorkspace)\cookbooks</DirChefCookbooks>
-        <DirChefCookbooksDiscoveryServer>$(DirChefCookbooks)\discovery_server</DirChefCookbooksDiscoveryServer>
+        <DirChefCookbooksDiscoveryServer>$(DirChefCookbooks)\ops_resource_discovery</DirChefCookbooksDiscoveryServer>
 
         <!-- The directory that contains all the NuGet packages for the project -->
         <DirPackages Condition=" '$(DirPackages)' == '' ">$(DirWorkspace)\packages</DirPackages>
 
         <!-- The directory that contains the source files for the project -->
         <DirSrc Condition=" '$(DirSrc)' == '' ">$(DirWorkspace)\src</DirSrc>
-        
+
         <!-- The directory that contains all the script files -->
         <DirScripts Condition=" '$(DirScripts)' == '' ">$(DirWorkspace)\scripts</DirScripts>
 
@@ -298,6 +296,17 @@
 
         <!-- The directory that contains all the test files for the project -->
         <DirTest Condition=" '$(DirTest)' == '' ">$(DirWorkspace)\tests</DirTest>
+    </PropertyGroup>
+
+    <!--
+        Relative directories
+    -->
+    <PropertyGroup>
+        <RelDirConfiguration>configuration</RelDirConfiguration>
+        <RelDirConfigurationCookbooks>$(RelDirConfiguration)\cookbooks</RelDirConfigurationCookbooks>
+        <RelDirConfigurationCookbooksServer>$(RelDirConfigurationCookbooks)\ops_resource_discovery</RelDirConfigurationCookbooksServer>
+        <RelDirVerification>verification</RelDirVerification>
+        <RelDirVerificationTests>$(RelDirVerification)\tests</RelDirVerificationTests>
     </PropertyGroup>
 
 
@@ -423,11 +432,15 @@
         The default template parameters, as indicated at the top of this file, are always available.
     -->
     <ItemGroup>
-        <!--
-        <TemplateTokens Include="">
-            <ReplacementValue></ReplacementValue>
+        <TemplateTokens Include="DirBuildTempDiscoveryShared">
+            <ReplacementValue>$(DirBuildTempDiscoveryShared)</ReplacementValue>
         </TemplateTokens>
-        -->
+        <TemplateTokens Include="DirBuildTempDiscoveryHyperV">
+            <ReplacementValue>$(DirBuildTempDiscoveryHyperV)</ReplacementValue>
+        </TemplateTokens>
+        <TemplateTokens Include="DirBuildTempDiscoveryLan">
+            <ReplacementValue>$(DirBuildTempDiscoveryLan)</ReplacementValue>
+        </TemplateTokens>
     </ItemGroup>
 
 
@@ -582,6 +595,7 @@
             </Properties>
         </BuildStepsToExecute>
         -->
+        <!-->
         <BuildStepsToExecute Include="$(DirWorkspace)\analyze.rubocop.msbuild">
             <Properties>
             </Properties>
@@ -590,6 +604,7 @@
             <Properties>
             </Properties>
         </BuildStepsToExecute>
+        -->
 
         <!--
         <BuildStepsToExecute Include="$(BuildStepsBuildVisualStudioSolution)">
@@ -611,12 +626,14 @@
         </BuildStepsToExecute>
         -->
 
+        <!--
         <BuildStepsToExecute Include="$(DirWorkspace)\test.unit.chefspec.msbuild">
             <Properties>
                 Configuration=$(TestConfiguration);
                 Platform=$(Platform)
             </Properties>
         </BuildStepsToExecute>
+        -->
 
         <!--
         <BuildStepsToExecute Include="$(BuildStepsAnalyzeBinariesMoma)">
@@ -1235,7 +1252,8 @@
         All file paths allow build templates, e.g. $(DirBuildDeploy)\myarchive-${VersionSemantic}.zip.
     -->
     <ItemGroup>
-        <ArchivePackageSpecs Include="$(DirTemplate)\ops.resource.discovery.zipspec" />
+        <ArchivePackageSpecs Include="$(DirTemplates)\ops.resource.discovery.lan.zipspec" />
+        <ArchivePackageSpecs Include="$(DirTemplates)\ops.resource.discovery.hyperv.zipspec" />
     </ItemGroup>
 
 
@@ -1652,7 +1670,7 @@
             The full path to the OpenCover command line executable. If not defined the packages directory is searched.
         -->
         <ToolsExternalOpenCoverPath Condition=" '$(ToolsExternalOpenCoverPath)' == '' ">UNDEFINED</ToolsExternalOpenCoverPath>
-        
+
         <!--
             The full path to the Powershell executable.
         -->
