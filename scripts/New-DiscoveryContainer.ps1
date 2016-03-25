@@ -12,10 +12,10 @@
     .PARAMETER containerHost
 
     The name of the machine on which the containers can be created
-    
-    
-    .PARAMETER $containerBaseName
-    
+
+
+    .PARAMETER containerBaseName
+
     The name of the base container.
 
 
@@ -37,7 +37,7 @@
 param(
     [Parameter(Mandatory = $true)]
     [string] $containerHost         = $(throw 'Please specify the name of the machine that should be configured.'),
-    
+
     [Parameter(Mandatory = $true)]
     [string] $containerBaseName     = $(throw 'Please specify the name of the base container image.'),
 
