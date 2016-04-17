@@ -80,7 +80,8 @@
         </DefaultCookbooks>
         <DefaultFlags>
             InstallConsul=false;
-            InstallMeta=true
+            InstallMeta=true;
+            InstallProvisioning=true
         </DefaultFlags>
     </PropertyGroup>
     <Target Name="_Build_Prepare_Discovery_GatherCoreFiles_ForHyperVInstall">
@@ -154,7 +155,7 @@
         <MakeDir Directories="$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\files"
                  Condition="!Exists('$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\files')" />
 
-        <Copy SourceFiles="$(DirScripts)\New-DiscoveryHypervServer.ps1"
+        <Copy SourceFiles="$(DirScripts)\New-DiscoveryHypervImage.ps1"
               DestinationFolder="$(DirBuildTempDiscoveryHyperV)" />
         <Copy SourceFiles="$(DirScripts)\New-DiscoveryLocalServer.ps1"
               DestinationFolder="$(DirBuildTempDiscoveryLan)" />
