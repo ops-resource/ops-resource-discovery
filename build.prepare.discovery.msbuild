@@ -20,15 +20,6 @@
     <Import Project="$(BuildPropertyFile)"
             Condition="Exists('$(BuildPropertyFile)') AND '$(ExistsSettings)' != 'true' " />
 
-    <PropertyGroup>
-        <DirExternalInstallers Condition=" '$(DirExternalInstallers)' == '' ">UNDEFINED</DirExternalInstallers>
-
-        <!-- Files -->
-        <FileDiscoveryResourcesDependencies Condition=" '$(FileDiscoveryResourcesDependencies)' == '' ">$(DirWorkspace)\dependencies.resources.discovery.msbuild</FileDiscoveryResourcesDependencies>
-        <FileDiscoveryMetadataTemplate>$(DirChefCookbooksDiscoveryServer)\metadata.rb</FileDiscoveryMetadataTemplate>
-        <FileDiscoveryMetadataGenerated>$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\metadata.rb</FileDiscoveryMetadataGenerated>
-    </PropertyGroup>
-
     <Import Project="$(DirNBuildKitMsBuild)\shared.templatetokens.msbuild"
             Condition="Exists('$(DirNBuildKitMsBuild)\shared.templatetokens.msbuild') AND '$(ExistsSharedTemplateTokens)' != 'true' " />
 
@@ -72,12 +63,6 @@
             DirNBuildKitMsBuildExtensions=$(DirNBuildKitMsBuildExtensions);
             DirExternalInstallers=$(DirExternalInstallers)
         </DefaultDirectories>
-        <DefaultFiles>
-            FileNonCoreDependencies=$(FileDiscoveryResourcesDependencies)
-        </DefaultFiles>
-        <DefaultCookbooks>
-            CookbooksToInvoke=ops_resource_discovery
-        </DefaultCookbooks>
         <DefaultFlags>
             InstallConsul=true;
             InstallProvisioning=true
@@ -96,7 +81,7 @@
         <MSBuild
             BuildInParallel="False"
             Projects="$(DirPackageResourcesCoreHyperv)\distribute.core.msbuild"
-            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFiles);$(DefaultCookbooks);$(DefaultFlags);DirOutput=$(DirBuildTempDiscoveryHyperV)"
+            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFlags);DirOutput=$(DirBuildTempDiscoveryHyperV)"
             RebaseOutputs="False"
             RemoveProperties=""
             RunEachTargetSeparately="True"
@@ -122,7 +107,7 @@
         <MSBuild
             BuildInParallel="False"
             Projects="$(DirPackageResourcesCoreLan)\distribute.core.msbuild"
-            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFiles);$(DefaultCookbooks);$(DefaultFlags);DirOutput=$(DirBuildTempDiscoveryLan)"
+            Properties="BuildPropertyFile=$(BuildPropertyFile);$(DefaultDirectories);$(DefaultFlags);DirOutput=$(DirBuildTempDiscoveryLan)"
             RebaseOutputs="False"
             RemoveProperties=""
             RunEachTargetSeparately="True"
@@ -158,29 +143,6 @@
               DestinationFolder="$(DirBuildTempDiscoveryHyperV)" />
         <Copy SourceFiles="$(DirScripts)\New-DiscoveryLocalServer.ps1"
               DestinationFolder="$(DirBuildTempDiscoveryLan)" />
-
-        <ItemGroup>
-            <CookBookFiles Include="$(DirChefCookbooks)\**\*.*"
-                           Exclude="$(FileDiscoveryMetadataTemplate)" />
-        </ItemGroup>
-        <Copy SourceFiles="@(CookBookFiles)"
-              DestinationFiles="@(CookBookFiles->'$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooks)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-        <TemplateFile Template="$(FileDiscoveryMetadataTemplate)"
-                      OutputFileName="$(FileDiscoveryMetadataGenerated)"
-                      Tokens="@(TemplateTokens)"
-                      Condition=" '$(ShouldExecute)' == 'true' "/>
-
-        <SearchPackagesDirectoryForToolDirectory PackagesDir="$(DirPackages)"
-                                                 FileToLocate="Consul.ps1"
-                                                 Condition=" '$(ShouldExecute)' == 'true' ">
-            <Output TaskParameter="Path" PropertyName="DirPackagesOpsToolsConsul" />
-        </SearchPackagesDirectoryForToolDirectory>
-        <ItemGroup>
-            <HelperScripts Include="$(DirPackagesOpsToolsConsul)/Consul.ps1" />
-        </ItemGroup>
-        <Copy SourceFiles="@(HelperScripts)"
-              DestinationFiles="@(HelperScripts->'$(DirBuildTempDiscoveryShared)\$(RelDirConfigurationCookbooksServer)\files\windows\%(Filename)%(Extension)')" />
     </Target>
 
     <Target Name="_Build_Prepare_Discovery_GatherVerificationFiles">
