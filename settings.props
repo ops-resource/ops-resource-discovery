@@ -595,7 +595,6 @@
             </Properties>
         </BuildStepsToExecute>
         -->
-        <!-->
         <BuildStepsToExecute Include="$(DirWorkspace)\analyze.rubocop.msbuild">
             <Properties>
             </Properties>
@@ -604,7 +603,6 @@
             <Properties>
             </Properties>
         </BuildStepsToExecute>
-        -->
 
         <!--
         <BuildStepsToExecute Include="$(BuildStepsBuildVisualStudioSolution)">
@@ -626,14 +624,12 @@
         </BuildStepsToExecute>
         -->
 
-        <!--
         <BuildStepsToExecute Include="$(DirWorkspace)\test.unit.chefspec.msbuild">
             <Properties>
                 Configuration=$(TestConfiguration);
                 Platform=$(Platform)
             </Properties>
         </BuildStepsToExecute>
-        -->
 
         <!--
         <BuildStepsToExecute Include="$(BuildStepsAnalyzeBinariesMoma)">
@@ -663,6 +659,27 @@
             </Properties>
         </BuildStepsToExecute>
         -->
+
+
+        <!--
+            This should be part of a series of steps. The different steps in this stage should be called only when needed.
+            Need nBuildKit 0.8 for that.
+        -->
+        <BuildStepsToExecute Include="$(DirWorkspace)\build.hypervimage.msbuild">
+            <Properties>
+                Configuration=$(ProductionConfiguration);
+                Platform=$(Platform)
+            </Properties>
+        </BuildStepsToExecute>
+        <BuildStepsToExecute Include="$(DirWorkspace)\build.containerimage.msbuild">
+            <Properties>
+                Configuration=$(ProductionConfiguration);
+                Platform=$(Platform)
+            </Properties>
+        </BuildStepsToExecute>
+
+
+
         <BuildStepsToExecute Include="$(BuildStepsPackZip)">
             <Properties>
                 Configuration=$(ProductionConfiguration);

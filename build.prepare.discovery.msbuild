@@ -79,8 +79,7 @@
             CookbooksToInvoke=ops_resource_discovery
         </DefaultCookbooks>
         <DefaultFlags>
-            InstallConsul=false;
-            InstallMeta=true;
+            InstallConsul=true;
             InstallProvisioning=true
         </DefaultFlags>
     </PropertyGroup>

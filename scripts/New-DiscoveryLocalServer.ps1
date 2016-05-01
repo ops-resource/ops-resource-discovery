@@ -15,6 +15,21 @@
     The name of the machine that should be set up.
 
 
+    .PARAMETER dataCenterName
+
+    The name of the consul data center to which the remote machine should belong once configuration is completed.
+
+
+    .PARAMETER clusterEntryPointAddress
+
+    The DNS name of a machine that is part of the consul cluster to which the remote machine should be joined.
+
+
+    .PARAMETER globalDnsServerAddress
+
+    The DNS name or IP address of the DNS server that will be used by Consul to handle DNS fallback.
+
+
     .PARAMETER environmentName
 
     The name of the environment to which the remote machine should be added.
@@ -34,16 +49,40 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $computerName         = $(throw 'Please specify the name of the machine that should be configured.'),
 
-    [Parameter(Mandatory = $false)]
-    [string] $environmentName      = 'Development',
+    [Parameter(Mandatory = $true,
+               ParameterSetName = 'FromUserSpecification')]
+    [string] $dataCenterName                                    = '',
 
-    [Parameter(Mandatory = $false)]
-    [string] $consulLocalAddress   = "http://localhost:8500"
+    [Parameter(Mandatory = $true,
+               ParameterSetName = 'FromUserSpecification')]
+    [string] $clusterEntryPointAddress                          = '',
+
+    [Parameter(Mandatory = $false,
+               ParameterSetName = 'FromUserSpecification')]
+    [string] $globalDnsServerAddress                            = '',
+
+    [Parameter(Mandatory = $false,
+               ParameterSetName = 'FromMetaCluster')]
+    [string] $environmentName                                   = 'Development',
+
+    [Parameter(Mandatory = $false,
+               ParameterSetName = 'FromMetaCluster')]
+    [string] $consulLocalAddress                                = "http://localhost:8500"
 )
 
 Write-Verbose "New-DiscoveryLocalServer - computerName: $computerName"
-Write-Verbose "New-DiscoveryLocalServer - environmentName: $environmentName"
-Write-Verbose "New-DiscoveryLocalServer - consulLocalAddress: $consulLocalAddress"
+switch ($psCmdlet.ParameterSetName)
+{
+    'FromUserSpecification' {
+        Write-Verbose "New-DiscoveryLocalServer - dataCenterName: $dataCenterName"
+        Write-Verbose "New-DiscoveryLocalServer - clusterEntryPointAddress: $clusterEntryPointAddress"
+        Write-Verbose "New-DiscoveryLocalServer - globalDnsServerAddress: $globalDnsServerAddress"
+    }
+
+    'FromMetaCluster' {
+        Write-Verbose "New-DiscoveryLocalServer - environmentName: $environmentName"
+    }
+}
 
 # Stop everything if there are errors
 $ErrorActionPreference = 'Stop'
@@ -58,11 +97,25 @@ $commonParameterSwitches =
 try
 {
     $installationScript = Join-Path $PSScriptRoot 'Initialize-LocalNetworkResource.ps1'
-    & $installationScript `
-        -computerName $computerName `
-        -consulLocalAddress $consulLocalAddress `
-        -environmentName $environmentName `
-        @commonParameterSwitches
+    switch ($psCmdlet.ParameterSetName)
+    {
+        'FromUserSpecification' {
+            & $installationScript `
+                -computerName $computerName `
+                -dataCenterName $dataCenterName `
+                -clusterEntryPointAddress $clusterEntryPointAddress `
+                -globalDnsServerAddress $globalDnsServerAddress `
+                @commonParameterSwitches
+        }
+
+        'FromMetaCluster' {
+            & $installationScript `
+                -computerName $computerName `
+                -consulLocalAddress $consulLocalAddress `
+                -environmentName $environmentName `
+                @commonParameterSwitches
+        }
+    }
 }
 catch
 {
