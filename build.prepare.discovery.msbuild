@@ -70,7 +70,7 @@
     </PropertyGroup>
     <Target Name="_Build_Prepare_Discovery_GatherCoreFiles_ForHyperVInstall">
         <SearchPackagesDirectoryForToolDirectory PackagesDir="$(DirPackages)"
-                                                 FileToLocate="Initialize-HyperVResource.ps1"
+                                                 FileToLocate="Initialize-HyperVImage.ps1"
                                                  Condition=" '$(ShouldExecute)' == 'true' ">
             <Output TaskParameter="Path" PropertyName="DirPackagesResourcesCoreHypervTemplates" />
         </SearchPackagesDirectoryForToolDirectory>
