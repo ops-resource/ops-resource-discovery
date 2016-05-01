@@ -595,6 +595,7 @@
             </Properties>
         </BuildStepsToExecute>
         -->
+        <!--
         <BuildStepsToExecute Include="$(DirWorkspace)\analyze.rubocop.msbuild">
             <Properties>
             </Properties>
@@ -603,6 +604,7 @@
             <Properties>
             </Properties>
         </BuildStepsToExecute>
+        -->
 
         <!--
         <BuildStepsToExecute Include="$(BuildStepsBuildVisualStudioSolution)">
@@ -624,12 +626,14 @@
         </BuildStepsToExecute>
         -->
 
+        <!--
         <BuildStepsToExecute Include="$(DirWorkspace)\test.unit.chefspec.msbuild">
             <Properties>
                 Configuration=$(TestConfiguration);
                 Platform=$(Platform)
             </Properties>
         </BuildStepsToExecute>
+        -->
 
         <!--
         <BuildStepsToExecute Include="$(BuildStepsAnalyzeBinariesMoma)">
