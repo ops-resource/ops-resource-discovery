@@ -9,6 +9,16 @@
     The New-DiscoveryHypervImage  script takes all the actions necessary to create and configure a Hyper-V VM image as a service discovery server.
 
 
+    .PARAMETER credential
+
+    The credential that should be used to connect to the remote machine.
+
+
+    .PARAMETER authenticateWithCredSSP
+
+    A flag that indicates whether remote powershell sessions should be authenticated with the CredSSP mechanism.
+
+
     .PARAMETER osName
 
     The name of the OS that should be used to create the new VM.
@@ -30,6 +40,12 @@
 #>
 [CmdletBinding()]
 param(
+    [Parameter(Mandatory = $false)]
+    [PSCredential] $credential                                  = $null,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $authenticateWithCredSSP,
+
     [Parameter(Mandatory = $true)]
     [string] $osName                                            = '',
 
@@ -43,6 +59,8 @@ param(
     [string] $hypervHostVmStoragePath                           = "\\$($hypervHost)\vms\machines"
 )
 
+Write-Verbose "New-DiscoveryHypervImage - credential = $credential"
+Write-Verbose "New-DiscoveryHypervImage - authenticateWithCredSSP = $authenticateWithCredSSP"
 Write-Verbose "New-DiscoveryHypervImage - osName = $osName"
 Write-Verbose "New-DiscoveryHypervImage - hypervHost: $hypervHost"
 Write-Verbose "New-DiscoveryHypervImage - vhdxTemplatePath = $vhdxTemplatePath"
@@ -63,6 +81,8 @@ try
 {
     $installationScript = Join-Path $PSScriptRoot 'Initialize-HyperVImage.ps1'
     & $installationScript `
+        -credential $credential `
+        -authenticateWithCredSSP:$authenticateWithCredSSP `
         -osName $osName `
         -hypervHost $hypervHost `
         -vhdxTemplatePath $vhdxTemplatePath `
