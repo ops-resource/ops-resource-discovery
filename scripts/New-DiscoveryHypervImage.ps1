@@ -37,6 +37,11 @@
     .PARAMETER hypervHostVmStoragePath
 
     The UNC path to the directory that stores the Hyper-V VM information.
+
+
+    .PARAMETER staticMacAddress
+
+    An optional static MAC address that is applied to the VM so that it can be given a consistent IP address.
 #>
 [CmdletBinding()]
 param(
@@ -56,7 +61,10 @@ param(
     [string] $vhdxTemplatePath                                  = "\\$($hypervHost)\vmtemplates",
 
     [Parameter()]
-    [string] $hypervHostVmStoragePath                           = "\\$($hypervHost)\vms\machines"
+    [string] $hypervHostVmStoragePath                           = "\\$($hypervHost)\vms\machines",
+
+    [Parameter(Mandatory = $false)]
+    [string] $staticMacAddress                                  = ''
 )
 
 Write-Verbose "New-DiscoveryHypervImage - credential = $credential"
@@ -87,6 +95,7 @@ try
         -hypervHost $hypervHost `
         -vhdxTemplatePath $vhdxTemplatePath `
         -hypervHostVmStoragePath $hypervHostVmStoragePath `
+        -staticMacAddress $staticMacAddress `
         @commonParameterSwitches
 }
 catch
