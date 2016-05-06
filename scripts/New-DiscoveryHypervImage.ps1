@@ -19,6 +19,11 @@
     A flag that indicates whether remote powershell sessions should be authenticated with the CredSSP mechanism.
 
 
+    .PARAMETER machineName
+
+    The name of the temporary machine that will be created.
+
+
     .PARAMETER osName
 
     The name of the OS that should be used to create the new VM.
@@ -52,6 +57,9 @@ param(
     [switch] $authenticateWithCredSSP,
 
     [Parameter(Mandatory = $true)]
+    [string] $machineName                                       = $(throw 'The machine name for the template machine is required.'),
+
+    [Parameter(Mandatory = $true)]
     [string] $osName                                            = '',
 
     [Parameter(Mandatory = $true)]
@@ -69,6 +77,7 @@ param(
 
 Write-Verbose "New-DiscoveryHypervImage - credential = $credential"
 Write-Verbose "New-DiscoveryHypervImage - authenticateWithCredSSP = $authenticateWithCredSSP"
+Write-Verbose "New-DiscoveryHypervImage - machineName = $machineName"
 Write-Verbose "New-DiscoveryHypervImage - osName = $osName"
 Write-Verbose "New-DiscoveryHypervImage - hypervHost: $hypervHost"
 Write-Verbose "New-DiscoveryHypervImage - vhdxTemplatePath = $vhdxTemplatePath"
@@ -91,6 +100,7 @@ try
     & $installationScript `
         -credential $credential `
         -authenticateWithCredSSP:$authenticateWithCredSSP `
+        -machineName $machineName `
         -osName $osName `
         -hypervHost $hypervHost `
         -vhdxTemplatePath $vhdxTemplatePath `
