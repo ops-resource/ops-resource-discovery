@@ -71,6 +71,9 @@ param(
     [Parameter()]
     [string] $hypervHostVmStoragePath                           = "\\$($hypervHost)\vms\machines",
 
+    [Parameter(Mandatory = $true)]
+    [string] $configPath                                        = '',
+
     [Parameter(Mandatory = $false)]
     [string] $staticMacAddress                                  = ''
 )
@@ -82,6 +85,8 @@ Write-Verbose "New-DiscoveryHypervImage - osName = $osName"
 Write-Verbose "New-DiscoveryHypervImage - hypervHost: $hypervHost"
 Write-Verbose "New-DiscoveryHypervImage - vhdxTemplatePath = $vhdxTemplatePath"
 Write-Verbose "New-DiscoveryHypervImage - hypervHostVmStoragePath = $hypervHostVmStoragePath"
+Write-Verbose "New-DiscoveryHypervImage - configPath = $configPath"
+Write-Verbose "New-DiscoveryHypervImage - staticMacAddress = $staticMacAddress"
 
 
 # Stop everything if there are errors
@@ -105,6 +110,7 @@ try
         -hypervHost $hypervHost `
         -vhdxTemplatePath $vhdxTemplatePath `
         -hypervHostVmStoragePath $hypervHostVmStoragePath `
+        -configPath $configPath `
         -staticMacAddress $staticMacAddress `
         @commonParameterSwitches
 }
